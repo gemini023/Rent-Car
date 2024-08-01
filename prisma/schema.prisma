@@ -13,4 +13,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model auth {
+  id        String    @id @default(uuid())
+  email     String?   @unique
+  password  String?
+  role      UserRole
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
 
+
+enum UserRole {
+  client
+  owner
+  supervisor
+  admin
+}

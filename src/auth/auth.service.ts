@@ -1,11 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { SignUpDto } from './dto/sign-up.dto';
+import { SignInDto } from './dto/sign-in.dto';
+import * as bcrypt from "bcrypt"
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
+  constructor(
+    private readonly signUpDto: SignUpDto,
+    private readonly signInDto: SignInDto
+  ) { }
+
+  async signUp(signUpDto: SignUpDto) {
+    const { email, password } = signUpDto
+    const hashedPassword = await bcrypt.hash(password, 13)
   }
 
   findAll() {
@@ -16,7 +23,7 @@ export class AuthService {
     return `This action returns a #${id} auth`;
   }
 
-  update(id: number, updateAuthDto: UpdateAuthDto) {
+  update(id: number, updateAuthDto: SignInDto) {
     return `This action updates a #${id} auth`;
   }
 
