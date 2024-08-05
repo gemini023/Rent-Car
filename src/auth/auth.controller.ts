@@ -2,33 +2,31 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { AuthService } from './auth.service';
 import { SignUpDto } from './dto/sign-up.dto';
 import { SignInDto } from './dto/sign-in.dto';
+import { OtpDto } from './dto/otp.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post()
-  signUp(@Body() createAuthDto: SignUpDto) {
-    return this.authService.signUp(createAuthDto);
+  @Post('signUp')
+  async signUp(@Body() signUpDto: SignUpDto) {
+    return this.authService.signUp(signUpDto);
   }
 
-  @Get()
-  findAll() {
-    return this.authService.findAll();
+  @Post("verify-otp")
+  async verifyOtp(@Body() otpDto: OtpDto) {
+    return this.authService.verifyOtp(otpDto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.authService.findOne(+id);
+  @Post('signIn')
+  signIn(@Body() signInDto: SignInDto) {
+    return this.authService.signIn(signInDto);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAuthDto: SignInDto) {
-    return this.authService.update(+id, updateAuthDto);
+  @Post('refresh-token')
+  async refreshToken(@Body() refreshToken: RefreshTokenDto) {
+    return this.authService.refreshToken(refreshToken);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.authService.remove(+id);
-  }
 }
