@@ -10,6 +10,7 @@ import { JwtService } from '@nestjs/jwt';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { RevokeTokenDto } from './dto/revoke-token.dto';
 import { UserRole } from '@prisma/client';
+import { UpdatePasswordDto } from './dto/update-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -184,7 +185,56 @@ export class AuthService {
   }
 
   async revokeToken(revokeTokenDto: RevokeTokenDto) {
-    const { refresh }
+    const { refresh_token } = revokeTokenDto
+
+    const storedToken = await this.prisma.refresh_tokens.findFirst({
+      where: { refresh_token: refresh_token }
+    })
+
+    if (!storedToken) {
+      throw new UnauthorizedException("Invalid refresh token!")
+    }
+
+    await this.prisma.refresh_tokens.delete({
+      where: { id: storedToken.id }
+    })
+
+    return { message: "Refresh token revoked successfully." }
+  }
+
+  async updatePassword(updatePasswordDto: UpdatePasswordDto) {
+    const { old_password, new_password, confirm_password, id } = updatePasswordDto
+
+    if (!id) {
+      throw new BadRequestException("User ID is required.");
+    }
+  
+    const user = await this.prisma.users.findUnique({
+      where: { id }
+    })
+
+    if (!user) {
+      throw new NotFoundException("User not found.")
+    }
+
+    const comparePassword = await bcrypt.compare(old_password, user.password)
+    if (!comparePassword) {
+      throw new BadRequestException("Invalid old password.")
+    }
+
+    if (new_password !== confirm_password) {
+      throw new BadRequestException("New password and confirm password do not match.")
+    }
+
+    const createNewPassword = await bcrypt.hash(new_password, 13)
+
+    await this.prisma.users.update({
+      where: { id: id },
+      data: { password: createNewPassword }
+    })
+
+    return { message: "Password successfully updated." }
+
   }
 
 }
